@@ -2,6 +2,7 @@ import Foundation
 import Cncurses
 import Darwin.ncurses
 
+var done = false
 
 enum Signal:Int32 {
     case INT = 2
@@ -10,30 +11,35 @@ enum Signal:Int32 {
 
 typealias SignalHandler = @convention(c)(Int32) -> Void
 
-func trap(_ signum:Signal, action:SignalHandler) {
+func trap(_ signum:Signal, action: SignalHandler) {
     signal(signum.rawValue, action)
 }
 
-trap(.INT) { signal in
-    endwin()
-    exit(0)
-}
 
 func main() {
     
-    initscr()
-    noecho()
-    curs_set(0)
+    // Trap SIGINT
+    trap(.INT) { signal in
+        done = true
+    }
     
-    move(0, 0)
-    addstr("UL")
+    let d = Display()
     
-    move(23, 78)
-    addstr("LR")
-    
-    refresh()
-    
-    select(0, nil, nil, nil, nil)
+    while(!done) {
+        
+        if let key = d.getKey(blocking: false) {
+            let keyStr = d.keyToString(key)
+            
+            if keyStr == "q" {
+                done = true
+                break
+            }
+            
+        }
+        
+        sleep(1)
+        
+    }
 
 }
 
