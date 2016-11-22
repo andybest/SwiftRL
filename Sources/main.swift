@@ -23,22 +23,20 @@ func main() {
         done = true
     }
     
+    let e = Engine()
     let d = Display()
     
     while(!done) {
-        
         if let key = d.getKey(blocking: false) {
             let keyStr = d.keyToString(key)
+            let status = e.handleKey(key: keyStr)
             
-            if keyStr == "q" {
+            if status == .Quit {
                 done = true
                 break
             }
-            
         }
-        
         sleep(1)
-        
     }
 
 }
